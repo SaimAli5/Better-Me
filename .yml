@@ -1,0 +1,464 @@
+openapi: 3.0.1
+info:
+  title: Better Me
+  version: 1.0.0
+  description: >-
+    "Better Me" is an innovative app that combines task management and
+    mindfulness features to enhance the mental and physical well-being of its
+    users. Unlike traditional to-do list apps, Better Me is designed to provide
+    personalized recommendations for guided meditation and mindfulness exercises
+    based on users' preferences and personality traits. Better Me allows users
+    to create and manage their to-do lists while seamlessly integrating daily or
+    weekly tasks recommended by the app to help them stay organized and healthy.
+    By incorporating mindfulness practices into users' daily routines, Better Me
+    strives to promote a more balanced and fulfilling lifestyle. Whether you're
+    looking to boost productivity or cultivate mindfulness, Better Me is the
+    ultimate tool for achieving your goals and becoming the best version of
+    yourself.
+
+
+    Technologies:
+      - Node.js
+      - Express
+      - Postgres
+      - JavaScript
+      
+  license:
+    name: ISC Licence
+    url: https://en.wikipedia.org/wiki/ISC_license
+paths:
+  /list:
+    summary: Custom lists created by users
+    get:
+      summary: GET all lists
+      description: Retrieve all custom lists created by the user
+      operationId: getAllList
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                All Custom Lists:
+                  value: |-
+                    [
+                       {
+                         "id": 1,
+                         "title": "gym",
+                         "user_id": 1
+                       },
+                       {
+                         "id": 2,
+                         "title": "vacation",
+                         "user_id": 1
+                       },
+                       {
+                         "id": 3,
+                         "title": "work",
+                         "user_id": 1
+                       }
+                    ]
+          description: Successful operation
+        '204':
+          description: No list found.
+      tags:
+        - list
+    post:
+      summary: POST new list
+      description: Create a new custom list
+      operationId: addNewList
+      requestBody:
+        description: A new list
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/list'
+        required: true
+      responses:
+        '201':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: list has been created.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - list
+  /list/{listName}:
+    put:
+      summary: UPDATE list
+      description: Update the list properties, for now its the name of list
+      operationId: updateList
+      parameters:
+        - name: listName
+          in: path
+          description: list name that needs to be updated in database.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update an existing custom list
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/list'
+        required: true
+      responses:
+        '200':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: list has been updated.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - list
+    delete:
+      summary: Delete list
+      description: Remove an existing list from database
+      operationId: deleteList
+      parameters:
+        - name: listName
+          in: path
+          description: list name that needs to be deleted from database.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: list has been deleted.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - list
+  /daily_task:
+    get:
+      summary: GET all tasks of the daily list
+      description: Retrieve all tasks related to the default dailyl list
+      operationId: getAllDailytTasks
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                All tasks related to the list:
+                  value: |-
+                    [
+                       {
+                         "id": 1,
+                         "title": "cardio",
+                         "status": "done",
+                         "note": "45 minutes",
+                         "daily_list_id": 1
+                       },
+                       {
+                         "id": 2,
+                         "title": "chest",
+                         "status": "pending",
+                         "note": "20 minutes",
+                         "daily_list_id": 1
+                       },
+                       {
+                         "id": 3,
+                         "title": "biceps",
+                         "status": "pending",
+                         "note": "30 minutes",
+                         "daily_list_id": 1
+                       }
+                    ]
+          description: Successful operation
+        '204':
+          description: No tasks found.
+      tags:
+        - Daily task
+    post:
+      summary: POST daily_task
+      description: Create new daily_task in the default list
+      operationId: PostNewDailyTask
+      requestBody:
+        description: A new daily_task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/daily_task'
+        required: true
+      responses:
+        '201':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: daily_task has been created.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Daily task
+  /daily_task/{daily_taskId}:
+    put:
+      summary: UPDATE a daily_task
+      description: Update the properties of specified daily_task with request body
+      operationId: updateDailyTask
+      parameters:
+        - name: daily_taskId
+          in: path
+          description: taskID that needs to be updated in database.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Update an existing task in the specified list
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/daily_task'
+        required: true
+      responses:
+        '200':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: task has been updated.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Daily task
+    delete:
+      summary: Delete daily_task
+      description: Remove required daily task record from database
+      operationId: deleteTask
+      parameters:
+        - name: daily_taskId
+          in: path
+          description: task that needs to be deleted from database
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: task has been deleted.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Daily task
+  /custom_task/{listId}:
+    summary: Task created by the user
+    get:
+      summary: GET all tasks
+      description: Retrieve all the custom tasks related to selected custom list
+      operationId: getCustomTask
+      parameters:
+        - name: listId
+          in: path
+          description: lists whom task needed to be retrieved
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Requested list tasks:
+                  value: |-
+                    [
+                       {
+                         "id": 1,
+                         "title": "db design",
+                         "status": "done",
+                         "note": "60 minutes",
+                         "custom_list_id": 1
+                       },
+                       {
+                         "id": 2,
+                         "title": "swagger design",
+                         "status": "pending",
+                         "note": "20 minutes",
+                         "custom_list_id": 1
+                       },
+                       {
+                         "id": 3,
+                         "title": "archetict revision",
+                         "status": "pending",
+                         "note": "30 minutes",
+                         "custom_list_id": 1
+                       }
+                    ]
+          description: Successful operation
+        '204':
+          description: No spending task found.
+      tags:
+        - Custom task
+  /custom_task:
+    post:
+      summary: POST new custom task
+      description: Create a new custom task in a custom list
+      operationId: createNewCustomTask
+      requestBody:
+        description: A new custom_task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/custom_task'
+        required: true
+      responses:
+        '201':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: custom_task has been created.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Custom task
+  /custom_task/{custom_taskId}:
+    put:
+      summary: UPDATE a custom task
+      description: Update an existing custom task from a custom list
+      operationId: updateCustomTask
+      parameters:
+        - name: custom_taskId
+          in: path
+          description: custom_taskId that needs to be updated in database.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Update an existing custom_task in the specified custom_list
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/custom_task'
+        required: true
+      responses:
+        '200':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: task has been updated.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Custom task
+    delete:
+      summary: DELETE custom_task
+      description: Remove a custom_task from selected custom_list
+      operationId: deleteCustomTask
+      parameters:
+        - name: custom_taskId
+          in: path
+          description: custom_task that needs to be deleted from database
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: task has been deleted.
+          description: Successful operation
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Custom task
+components:
+  schemas:
+    list:
+      type: object
+      properties:
+        title:
+          type: string
+        user_id:
+          type: integer
+    daily_task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+        note:
+          type: string
+        daily_list_id:
+          type: integer
+    custom_task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+        note:
+          type: string
+        custom_list_id:
+          type: integer
