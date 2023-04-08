@@ -91,9 +91,9 @@ paths:
       tags:
         - list
   /list/{listName}:
-    put:
-      summary: UPDATE list
-      description: Update the list properties, for now its the name of list
+    patch:
+      summary: UPDATE list title
+      description: Update the list title
       operationId: updateList
       parameters:
         - name: listName
