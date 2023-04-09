@@ -61,7 +61,7 @@ listRouter.post("/", async (req, res, next)=>{
 
     // Return 400 bad request if title is missing or empty
     if (!title || !title.length){
-        console.log("List title is empty ❕");
+        console.log("POST: List title is empty ❕");
         return res.status(400).send({
             status: "failure",
             message: "Title is missing or empty"
@@ -103,6 +103,24 @@ listRouter.patch("/:listname", async (req, res, next)=>{
     WHERE title = $2
     RETURNING *`;
 
+    // Return 400 bad request if the parameter /:listname is empty
+    if(!listName || !listName.length){
+        console.log("PATCH: ListName param is empty ❕");
+        return res.status(400).send({
+            status: "failure",
+            message: "List name is missing or empty"
+        })
+    };
+
+    // Return 400 bad request if title is missing or empty
+    if (!title || !title.length){
+        console.log("PATCH: List title is empty ❕");
+        return res.status(400).send({
+            status: "failure",
+            message: "Title is missing or empty"
+        })
+    };
+
     try {
         const response = await pool.query(putQuery, [title, listName]);
 
@@ -135,6 +153,14 @@ listRouter.delete("/:listname", async (req, res, next)=>{
     DELETE FROM custom_list
     WHERE title = $1
     RETURNING *`;
+
+    if(!listName || !listName.length){
+        console.log("PATCH: ListName param is empty ❕");
+        return res.status(400).send({
+            status: "failure",
+            message: "List name is missing or empty"
+        })
+    };
 
     try {
         const response = await pool.query(deleteQuery, [listName]);
