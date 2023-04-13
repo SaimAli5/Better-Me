@@ -6,18 +6,11 @@ const listRouter = express.Router();
 const pool = require("../test/testDb")
 
 // sample user_id
-const userId = 1; /* replace with real user Id from session info */
-
-/* 
-
-
-                 COMPLETE EDGE CASES AND CLOSE "list_routes" BRANCH AND CREATE NEW FOR TESTING 
-
-
-*/
+const userId = 1;         /*     replace with real user Id from session info      */
 
 
 /* Custom lists endpoint */
+
 
 // GET /list (Incomplete: user_id not included yet)
 listRouter.get("/", async (req, res, next)=>{
@@ -31,7 +24,7 @@ listRouter.get("/", async (req, res, next)=>{
 
         // failure
         if(response.rowCount < 1){
-            console.log("GET /list request unsuccessfull 👎");
+            console.log("GET /list request successfull but no content 👎");
             return res.status(204).send({
                 status: "failure",
                 message: "No list found"
