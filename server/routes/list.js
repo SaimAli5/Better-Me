@@ -3,7 +3,7 @@ const listRouter = express.Router();
 // const pool = require("../db")
 
 // Test database
-const pool = require("../test/testDb")
+const pool = require("../test/test_db")
 
 // sample user_id
 const userId = 1;         /*     replace with real user Id from session info      */
@@ -22,7 +22,7 @@ listRouter.get("/", async (req, res, next)=>{
     try {
         const response = await pool.query(getQuery, [userId]);
 
-        // failure
+        // failure 
         if(response.rowCount < 1){
             console.log("GET /list request successfull but no content 👎");
             return res.status(204).send({
@@ -31,7 +31,7 @@ listRouter.get("/", async (req, res, next)=>{
             })
         };
 
-        // success
+        // success 
         res.status(200).send({
             status: "success",
             message: "Custom lists successfully retrieved",
