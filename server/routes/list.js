@@ -25,7 +25,7 @@ listRouter.get("/", async (req, res, next)=>{
         // failure 
         if(response.rowCount < 1){
             console.log("GET /list request successfull but no content 👎");
-            return res.status(204).send({
+            return res.status(200).send({
                 status: "failure",
                 message: "No list found"
             })
@@ -182,6 +182,7 @@ listRouter.delete("/:listname", async (req, res, next)=>{
 
 // Error handler
 listRouter.use((err, req, res, next)=>{
+    console.log("/list: Error thrown from Error handler 🔴")
     console.error(err.stack);
     res.status(500).send("An error occurred, please try again later.");
   })

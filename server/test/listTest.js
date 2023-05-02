@@ -11,21 +11,16 @@ chai.should();
 
 chai.use(chaiHttp);
 
-
 /*   BDD testing suite    */
-
 
 // /list
 describe("/list", () => {
-  
-    beforeEach(() => {
-        const testData = [{ id: 1, title: 'Test List 1' }];
-        sinon.stub(pool, 'query').resolves(testData);
-    });
 
-    afterEach(() => {
-        pool.query.restore();
-    });
+    const postQuery = `
+    INSERT INTO custom_list (title, users_id)
+    VALUES ('test_list', 1) 
+    RETURNING *`;
+    const deleteQuery = `DELETE FROM custom_list`;
 
     // GET /list
     describe("GET /list", () => {
@@ -42,51 +37,46 @@ describe("/list", () => {
             - 500 status code when the try/catch block catches any error
         */
 
+        it("Should GET an array of lists", async () => {
 
-        it("Should GET an array of lists", (done) => {
-            chai.request(app) /* research about why is this "app" here */
-                .get("/list")
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.a('object');
-                    res.body.should.have.property("status").eq("success")
-                    res.body.should.have.property("message")
-                    res.body.should.have.property("data")
-                    res.body.data.should.have.a("array")
-                    done()
-                });
+            await pool.query(postQuery);
+
+            const res = await chai.request(app).get("/list");
+
+            res.should.have.status(200);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("success");
+            res.body.should.have.property("message");
+            res.body.should.have.property("data");
+            res.body.data.should.have.a("array");
         });
 
-        // it("Should NOT GET any list", (done) =>{
+        it("Should NOT GET any list", async () =>{
 
-        //     chai.request(app) 
-        //         .get("/list")
-        //         .end((err, res) =>{
-        //             res.should.have.status(204);
-        //             res.body.should.have.property("status").eq("failure") 
-        //             res.body.should.have.property("message")
-        //         done();
-        //         });
-        // });
+            await pool.query(deleteQuery);
 
-        // it("Should return with 500 status code", (done) =>{ /* research */
-        //     const listObject = { title: '500 test' };
+            const res = await chai.request(app).get("/list");
 
-        //     const queryError = new Error('Database error');
-        //     sinon.stub(pool, 'query').throws(queryError);
+            res.should.have.status(200);
+            res.body.should.have.property("status").eq("failure") 
+            res.body.should.have.property("message")
 
-        //     chai.request(app)
-        //         .post('/list')
-        //         .send(listObject)
-        //         .end((err, res) => {
-        //             res.should.have.status(500);
-        //             res.text.should.equal('An error occurred, please try again later.');
-        //         sinon.restore();
-        //         done();
-        //         });
-        // });
+        });
+
+        it("Should return with 500 status code", async() =>{ 
+
+            // Creating and throwing error for handler to catch
+            const queryError = new Error('Test error');
+            sinon.stub(pool, 'query').throws(queryError);
+
+            const res = await chai.request(app).get("/list");
+
+            res.should.have.status(500);
+            res.text.should.equal('An error occurred, please try again later.');
+            sinon.restore();
+
+        });
     });
-
 });
 
 
