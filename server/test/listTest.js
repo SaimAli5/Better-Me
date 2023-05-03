@@ -29,6 +29,7 @@ describe("/list", () => {
         await pool.query("ROLLBACK");  
     })
 
+
     // GET /list
     describe("GET /list", () => {
 
@@ -58,6 +59,7 @@ describe("/list", () => {
             res.body.data.should.have.a("array");
         });
 
+
         it("Should NOT GET any list", async () =>{
 
             const res = await chai.request(app).get("/list");
@@ -65,8 +67,8 @@ describe("/list", () => {
             res.should.have.status(200);
             res.body.should.have.property("status").eq("failure") 
             res.body.should.have.property("message")
-
         });
+
 
         it("Should return with 500 status code", async() =>{ 
 
@@ -79,7 +81,6 @@ describe("/list", () => {
             res.should.have.status(500);
             res.text.should.equal('An error occurred, please try again later.');
             sinon.restore();
-
         });
     });
 
@@ -111,75 +112,69 @@ describe("/list", () => {
             res.body.should.have.a('object');
             res.body.data.should.have.property('title').eq("test post title");
         });
-    
-        // it("Should NOT POST a new list", async() => {
 
-        //     // await pool.query(deleteQuery);
     
-        //     chai.request(app)
-        //         .post("/list")
-        //         .send(listObject)
-        //         .end((err, res) => {
-        //             res.should.have.status(400);
-        //             done();
-        //         });
-        // });
+        it("Should NOT POST a new list", async() => {
+
+            const res = await chai.request(app).post("/list").send(emptyListObject);
+
+            res.should.have.status(400);
+            res.body.should.have.property("status").eq("failure");
+            res.body.should.have.property("message");
+        });
     
-        // it("Should return with 500 status code", (done) => { /* research */
-        //     const listObject = { title: '500 test' };
-    
-        //     const queryError = new Error('Database error');
-        //     sinon.stub(pool, 'query').throws(queryError);
-    
-        //     chai.request(app)
-        //         .post('/list')
-        //         .send(listObject)
-        //         .end((err, res) => {
-        //             res.should.have.status(500);
-        //             res.text.should.equal('An error occurred, please try again later.');
-        //             sinon.restore();
-        //             done();
-        //         });
-        // });
+        it("Should return with 500 status code", async() => { 
+
+            // Creating and throwing error for handler to catch
+            const queryError = new Error('Database error');
+            sinon.stub(pool, 'query').throws(queryError);
+
+            const res = await chai.request(app).post("/list").send(listObject);
+
+            res.should.have.status(500);
+            res.text.should.equal('An error occurred, please try again later.');
+            sinon.restore();
+        });
     
     });
+
+
+    // PATCH /list
+    describe("PATCH /list", () => {
+
+        /* Cases:
+            // Route Success
+            - 200 status code when a list is successfully created
+            - In Success case route responds with list title
+        
+            // Route Failure:
+            - 400 status code when the list creation is unsuccessful
+            - 400 status code when the title in request body is empty
+            - 400 status code when the the :listname param is empty
+        
+            // Server Failure
+            - 500 status code when the try/catch block catches any error
+        */
     
+    });
+
+
+    // DELETE /list
+    describe("DELETE /list", () => {
+
+        /* Cases:
+            // Route Success
+            - 200 status code when a list is successfully created
+            - In Success case route responds with list object that has been deleted 
+        
+            // Route Failure:
+            - 400 status code when the list creation is unsuccessful
+            - 400 status code when the the :listname param is empty
+        
+            // Server Failure
+            - 500 status code when the try/catch block catches any error
+        */
+    
+    });
+
 });
-
-
-// PATCH /list
-// describe("PATCH /list", () => {
-
-//     /* Cases:
-//         // Route Success
-//         - 200 status code when a list is successfully created
-//         - In Success case route responds with list title
-    
-//         // Route Failure:
-//         - 400 status code when the list creation is unsuccessful
-//         - 400 status code when the title in request body is empty
-//         - 400 status code when the the :listname param is empty
-    
-//         // Server Failure
-//         - 500 status code when the try/catch block catches any error
-//     */
-
-// });
-
-// DELETE /list
-// describe("DELETE /list", () => {
-
-//     /* Cases:
-//         // Route Success
-//         - 200 status code when a list is successfully created
-//         - In Success case route responds with list object that has been deleted 
-    
-//         // Route Failure:
-//         - 400 status code when the list creation is unsuccessful
-//         - 400 status code when the the :listname param is empty
-    
-//         // Server Failure
-//         - 500 status code when the try/catch block catches any error
-//     */
-
-// });
