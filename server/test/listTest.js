@@ -115,14 +115,29 @@ describe("/list", () => {
             res.body.data.should.have.property('title').eq("test post title");
         });
 
-    
-        it("Should NOT POST a new list", async() => {
+
+        // if title already exists in database
+        it("Should NOT POST a new list", async() =>{
+
+            const postfailureQuery = `
+            INSERT INTO custom_list (title, users_id)
+            VALUES ('test post title', 1) 
+            RETURNING *`;
+            await pool.query(postfailureQuery);
+
+            const res = await chai.request(app).post("/list").send(listObject);
+            
+            res.should.have.status(500);
+        });
+
+        // if title is missing in req body
+        it("Should NOT POST a new list if title is missing", async() => {
 
             const res = await chai.request(app).post("/list").send(emptyListObject);
 
             res.should.have.status(400);
             res.body.should.have.property("status").eq("failure");
-            res.body.should.have.property("message");
+            res.body.should.have.property("message").eq("Title is missing or empty");
         });
 
     
@@ -151,9 +166,8 @@ describe("/list", () => {
             - In Success case route responds with list title
         
             // Route Failure:
-            - 400 status code when the list creation is unsuccessful
+            - 400 status code when the list patch is unsuccessful
             - 400 status code when the title in request body is empty
-            - 400 status code when the the :listname param is empty
         
             // Server Failure
             - 500 status code when the try/catch block catches any error
@@ -222,16 +236,57 @@ describe("/list", () => {
 
         /* Cases:
             // Route Success
-            - 200 status code when a list is successfully created
+            - 200 status code when a list is successfully deleted
             - In Success case route responds with list object that has been deleted 
         
             // Route Failure:
             - 400 status code when the list creation is unsuccessful
-            - 400 status code when the the :listname param is empty
         
             // Server Failure
             - 500 status code when the try/catch block catches any error
         */
+
+        
+        it("Should DELETE the selected list", async() =>{
+
+            await pool.query(postQuery);
+
+            const res = await chai.request(app).delete("/list/test_list");
+
+            res.should.have.status(200);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("success");
+            res.body.should.have.property("message").eq("List removed successfully");
+            res.body.should.have.property("data");
+            res.body.data.should.have.property('title').eq("test_list");
+        });
+
+
+        it("Should NOT DELETE the selected list", async() =>{
+
+            // await pool.query(postQuery);
+
+            const res = await chai.request(app).delete("/list/test_list");
+
+            res.should.have.status(400);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("failure");
+            res.body.should.have.property("message").eq("List removal was unsuccessfull");
+        });
+
+
+        it("Should return with 500 status code", async() => { 
+
+            // Creating and throwing error for handler to catch
+            const queryError = new Error('Test error');
+            sinon.stub(pool, 'query').throws(queryError);
+
+            const res = await chai.request(app).delete("/list/test_list")
+
+            res.should.have.status(500);
+            res.text.should.equal('An error occurred, please try again later.');
+            sinon.restore();
+        });
     
     });
 

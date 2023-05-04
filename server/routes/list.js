@@ -138,14 +138,6 @@ listRouter.delete("/:listname", async (req, res, next)=>{
     WHERE title = $1
     RETURNING *`;
 
-    if(!listName || !listName.length){
-        console.log("PATCH: ListName param is empty ❕");
-        return res.status(400).send({
-            status: "failure",
-            message: "List name is missing or empty"
-        })
-    };
-
     try {
         const response = await pool.query(deleteQuery, [listName]);
 
@@ -159,7 +151,7 @@ listRouter.delete("/:listname", async (req, res, next)=>{
         };
 
         // success
-        res.status(204).send({
+        res.status(200).send({
             status: "success",
             message: "List removed successfully",
             data: response.rows[0]
