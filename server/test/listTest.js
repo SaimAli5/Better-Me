@@ -21,6 +21,10 @@ describe("/list", () => {
     VALUES ('test_list', 1) 
     RETURNING *`;
 
+    // list objects for testing different cases
+    const listObject = { title: "test post title" };
+    const emptyListObject = { title: "" };
+
     // Using transactions as hooks to isolate each test 
     beforeEach( async() =>{
         await pool.query("BEGIN");  
@@ -101,9 +105,7 @@ describe("/list", () => {
             - 500 status code when the try/catch block catches any error
         */
 
-        const listObject = { title: "test post title" };
-        const emptyListObject = { title: "" };
-    
+        
         it("Should POST a new list", async() => {
 
             const res = await chai.request(app).post("/list").send(listObject);
@@ -122,11 +124,12 @@ describe("/list", () => {
             res.body.should.have.property("status").eq("failure");
             res.body.should.have.property("message");
         });
+
     
         it("Should return with 500 status code", async() => { 
 
             // Creating and throwing error for handler to catch
-            const queryError = new Error('Database error');
+            const queryError = new Error('Test error');
             sinon.stub(pool, 'query').throws(queryError);
 
             const res = await chai.request(app).post("/list").send(listObject);
@@ -142,9 +145,9 @@ describe("/list", () => {
     // PATCH /list
     describe("PATCH /list", () => {
 
-        /* Cases:
+        /* Cases:+
             // Route Success
-            - 200 status code when a list is successfully created
+            - 200 status code when a list's title is successfully updated
             - In Success case route responds with list title
         
             // Route Failure:
@@ -155,6 +158,61 @@ describe("/list", () => {
             // Server Failure
             - 500 status code when the try/catch block catches any error
         */
+
+
+        it("Should PATCH the title of list", async() =>{
+
+            await pool.query(postQuery);
+
+            const res = await chai.request(app).patch("/list/test_list").send(listObject);
+            
+            res.should.have.status(200);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("success");
+            res.body.should.have.property("message");
+            res.body.should.have.property("data");
+            res.body.data.should.have.property('title').eq("test post title");
+        });
+
+
+        // if requested title doesnt match in database
+        it("Should NOT PATCH the title of list", async() =>{
+
+            const res = await chai.request(app).patch("/list/test_list").send(listObject);
+            
+            res.should.have.status(400);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("failure");
+            res.body.should.have.property("message").eq("Title update was unsuccessfull");
+        });
+
+        
+        // if title is missing in req body
+        it("Should NOT PATCH when title is missing", async() =>{
+
+            await pool.query(postQuery);
+
+            const res = await chai.request(app).patch("/list/test_list").send(emptyListObject);
+            
+            res.should.have.status(400);
+            res.body.should.have.a('object');
+            res.body.should.have.property("status").eq("failure");
+            res.body.should.have.property("message").eq("Title is missing or empty");
+        });
+
+
+        it("Should return with 500 status code", async() => { 
+
+            // Creating and throwing error for handler to catch
+            const queryError = new Error('Test error');
+            sinon.stub(pool, 'query').throws(queryError);
+
+            const res = await chai.request(app).patch("/list/test_list").send(listObject);
+
+            res.should.have.status(500);
+            res.text.should.equal('An error occurred, please try again later.');
+            sinon.restore();
+        });
     
     });
 

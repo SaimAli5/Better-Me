@@ -96,15 +96,6 @@ listRouter.patch("/:listname", async (req, res, next)=>{
     WHERE title = $2
     RETURNING *`;
 
-    // Return 400 bad request if the parameter /:listname is empty
-    if(!listName || !listName.length){
-        console.log("PATCH: ListName param is empty ❕");
-        return res.status(400).send({
-            status: "failure",
-            message: "List name is missing or empty"
-        })
-    };
-
     // Return 400 bad request if title is missing or empty
     if (!title || !title.length){
         console.log("PATCH: List title is empty ❕");
@@ -183,7 +174,7 @@ listRouter.delete("/:listname", async (req, res, next)=>{
 // Error handler
 listRouter.use((err, req, res, next)=>{
     console.log("/list: Error thrown from Error handler 🔴")
-    console.error(err.stack);
+    console.error(err.stack); /* can comment this when testing */
     res.status(500).send("An error occurred, please try again later.");
   })
 
