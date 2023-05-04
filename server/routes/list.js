@@ -3,21 +3,14 @@ const listRouter = express.Router();
 // const pool = require("../db")
 
 // Test database
-const pool = require("../test/testDb")
+const pool = require("../test/test_db")
 
 // sample user_id
-const userId = 1; /* replace with real user Id from session info */
-
-/* 
-
-
-                 COMPLETE EDGE CASES AND CLOSE "list_routes" BRANCH AND CREATE NEW FOR TESTING 
-
-
-*/
+const userId = 1;         /*     replace with real user Id from session info      */
 
 
 /* Custom lists endpoint */
+
 
 // GET /list (Incomplete: user_id not included yet)
 listRouter.get("/", async (req, res, next)=>{
@@ -29,16 +22,16 @@ listRouter.get("/", async (req, res, next)=>{
     try {
         const response = await pool.query(getQuery, [userId]);
 
-        // failure
+        // failure 
         if(response.rowCount < 1){
-            console.log("GET /list request unsuccessfull 👎");
-            return res.status(204).send({
+            console.log("GET /list request successfull but no content 👎");
+            return res.status(200).send({
                 status: "failure",
                 message: "No list found"
             })
         };
 
-        // success
+        // success 
         res.status(200).send({
             status: "success",
             message: "Custom lists successfully retrieved",
@@ -103,15 +96,6 @@ listRouter.patch("/:listname", async (req, res, next)=>{
     WHERE title = $2
     RETURNING *`;
 
-    // Return 400 bad request if the parameter /:listname is empty
-    if(!listName || !listName.length){
-        console.log("PATCH: ListName param is empty ❕");
-        return res.status(400).send({
-            status: "failure",
-            message: "List name is missing or empty"
-        })
-    };
-
     // Return 400 bad request if title is missing or empty
     if (!title || !title.length){
         console.log("PATCH: List title is empty ❕");
@@ -154,14 +138,6 @@ listRouter.delete("/:listname", async (req, res, next)=>{
     WHERE title = $1
     RETURNING *`;
 
-    if(!listName || !listName.length){
-        console.log("PATCH: ListName param is empty ❕");
-        return res.status(400).send({
-            status: "failure",
-            message: "List name is missing or empty"
-        })
-    };
-
     try {
         const response = await pool.query(deleteQuery, [listName]);
 
@@ -175,7 +151,7 @@ listRouter.delete("/:listname", async (req, res, next)=>{
         };
 
         // success
-        res.status(204).send({
+        res.status(200).send({
             status: "success",
             message: "List removed successfully",
             data: response.rows[0]
@@ -189,7 +165,8 @@ listRouter.delete("/:listname", async (req, res, next)=>{
 
 // Error handler
 listRouter.use((err, req, res, next)=>{
-    console.error(err.stack);
+    console.log("/list: Error thrown from Error handler 🔴")
+    console.error(err.stack); /* can comment this when testing */
     res.status(500).send("An error occurred, please try again later.");
   })
 

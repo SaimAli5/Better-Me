@@ -57,9 +57,9 @@ paths:
                          "user_id": 1
                        }
                     ]
+                No list found:
+                  value: "No list found"
           description: Successful operation
-        '204':
-          description: No list found.
       tags:
         - list
     post:
@@ -189,9 +189,9 @@ paths:
                          "daily_list_id": 1
                        }
                     ]
+                No task found:
+                    value: "No task found"
           description: Successful operation
-        '204':
-          description: No tasks found.
       tags:
         - Daily task
     post:
@@ -270,7 +270,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        '200':
           content:
             text/plain; charset=utf-8:
               examples:
@@ -329,9 +329,9 @@ paths:
                          "custom_list_id": 1
                        }
                     ]
+                No list found:
+                  value: "No list found"
           description: Successful operation
-        '204':
-          description: No spending task found.
       tags:
         - Custom task
   /custom_task:
@@ -411,7 +411,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        '200':
           content:
             text/plain; charset=utf-8:
               examples:
