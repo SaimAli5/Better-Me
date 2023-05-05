@@ -264,8 +264,6 @@ describe("/list", () => {
 
         it("Should NOT DELETE the selected list", async() =>{
 
-            // await pool.query(postQuery);
-
             const res = await chai.request(app).delete("/list/test_list");
 
             res.should.have.status(400);

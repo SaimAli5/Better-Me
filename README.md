@@ -1,4 +1,4 @@
-# Project Title: Better Me
+# Better Me
 
 ## Description:
 
