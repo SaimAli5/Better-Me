@@ -33,10 +33,35 @@ authRouter.use(passport.session());
 
 // serielize user
 // desrielize user
+
 // passport auth 
 passport.use( new localStrategy(
-    (username, password, done) =>{
-}));
+    async (username, password, done) =>{
+
+        // password check
+        const passAuthQuery = `SELECT password FROM users WHERE username = $1`;
+        const passAuthResponse = await pool.query(passAuthQuery, [username]);
+
+        // username check
+        const userAuthQuery =  `SELECT * FROM users WHERE username = $1`;
+        await pool.query(userAuthQuery, [username], (err, user) =>{
+
+            if(err){
+                return done(err);
+            }
+            if(user.length < 1){
+                console.log("No user");
+                return done(null, false);
+            }
+            if(password != passAuthResponse){
+                console.log("Wrong password");
+                return done(null, false);
+            }
+            console.log("Successfull Authentication")
+            return done(null, user);
+        });
+    }
+));
 
 // register users
 authRouter.post("/", async (req, res, next) =>{
