@@ -14,7 +14,6 @@ const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 // bcrypt
 const bcrypt = require("bcrypt");
-const { password } = require("pg/lib/defaults");
 
 // session config
 authRouter.use(
@@ -32,7 +31,25 @@ authRouter.use(passport.initialize());
 authRouter.use(passport.session());
 
 // serielize user
+passport.serializeUser((user, done) =>{
+    console.log("serialize");
+    console.log(user.rows[0].username);
+});
+
 // desrielize user
+passport.deserializeUser(async (username, done) =>{
+    console.log("deserialize");
+    const deserializeQuery = `SELECT * FROM users WHERE username = $1`;
+    await pool.query(deserializeQuery, [username], (err, user)=>{
+        if(err){
+            return done(err);
+        } 
+        if(!user){
+            return done(null, false);
+        }
+        return done(null, user.rows);
+    })
+});
 
 // passport auth 
 passport.use( new localStrategy(
@@ -53,7 +70,7 @@ passport.use( new localStrategy(
                 console.log("No user");
                 return done(null, false);
             }
-            if(password != passAuthResponse){
+            if(password !== passAuthResponse.rows[0].password){
                 console.log("Wrong password");
                 return done(null, false);
             }
@@ -64,7 +81,7 @@ passport.use( new localStrategy(
 ));
 
 // register users
-authRouter.post("/", async (req, res, next) =>{
+authRouter.post("/register", async (req, res, next) =>{
     const {username, password} = req.body;
     const registerQuery = `INSERT INTO users (username, password) 
     VALUES ($1, $2) RETURNING *`;
@@ -86,8 +103,14 @@ authRouter.post("/", async (req, res, next) =>{
 });
 
 // login users
-authRouter.use("/", (req, res, next) =>{
-});
+authRouter.post("/login", 
+    passport.authenticate("local"),
+    (req, res, next) =>{
+        console.log("login successfull");
+        console.log(req.session);
+        res.send("successfully logged-in");
+    }
+);
 
 // Error handler
 authRouter.use((err, req, res, next)=>{
