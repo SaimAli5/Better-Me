@@ -33,7 +33,7 @@ authRouter.use(passport.session());
 // serielize user
 passport.serializeUser((user, done) =>{
     console.log("serialize");
-    console.log(user.rows[0].username);
+    done(null, user.rows[0].username);
 });
 
 // desrielize user
@@ -111,6 +111,19 @@ authRouter.post("/login",
         res.send("successfully logged-in");
     }
 );
+
+// logout users
+authRouter.get("/logout", (req, res, next) =>{
+    req.logout((err) =>{
+        if (err){
+            console.log("Error occured while loging-out");
+            console.log(err);
+            return next(err);
+        }
+        console.log("Successfull logout");
+        res.send("Successfull logout");
+    });
+});
 
 // Error handler
 authRouter.use((err, req, res, next)=>{
