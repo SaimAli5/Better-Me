@@ -13,5 +13,8 @@ apiRouter.use("/daily_task", daily_taskRouter);
 const custom_taskRouter = require("./routes/custom_task");
 apiRouter.use("/custom_task", custom_taskRouter);
 
+// auth router
+const authRouter = require("./auth");
+apiRouter.use("/auth", authRouter);
 
 module.exports = apiRouter;
