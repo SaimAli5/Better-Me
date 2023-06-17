@@ -56,8 +56,11 @@ passport.use( new localStrategy(
     async (username, password, done) =>{
 
         // password check
-        const passAuthQuery = `SELECT password FROM users WHERE username = $1`;
-        const passAuthResponse = await pool.query(passAuthQuery, [username]);
+        const passQuery = `SELECT password FROM users WHERE username = $1`;
+        const passResponse = await pool.query(passQuery, [username]);
+
+        // pass check with hashed version in database
+        const hashPassCheck = await bcrypt.compare(password, passResponse.rows[0].password);
 
         // username check
         const userAuthQuery =  `SELECT * FROM users WHERE username = $1`;
@@ -70,7 +73,7 @@ passport.use( new localStrategy(
                 console.log("No user");
                 return done(null, false);
             }
-            if(password !== passAuthResponse.rows[0].password){
+            if(!hashPassCheck){
                 console.log("Wrong password");
                 return done(null, false);
             }
@@ -86,8 +89,12 @@ authRouter.post("/register", async (req, res, next) =>{
     const registerQuery = `INSERT INTO users (username, password) 
     VALUES ($1, $2) RETURNING *`;
 
+    // hashing password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     try {
-        const newUser = await pool.query(registerQuery, [username, password]);
+        const newUser = await pool.query(registerQuery, [username, hashedPassword]);
         if(newUser.rowCount > 0){
             console.log("New user registered 👍");
             res.send("Successfull registration");
